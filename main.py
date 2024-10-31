@@ -1,12 +1,19 @@
 from utils import argv, ms_analysis
 import sys, time, pyfiglet
 
-def  main():
+def main():
     print(pyfiglet.figlet_format("autoMS"))
 
     start_time = time.time()
 
     # parse argvs (check availability, print parsed/pruned, return available)
+    if len(sys.argv) < 2:
+        print("No inputs provided, please run with -h or read the documentation :D")
+        return 1
+    elif len(sys.argv) == 2 and sys.argv[1] == '-h':
+        argv.help()
+        return 1
+    
     argvs = argv.argv_parser(sys.argv)
 
     ms_analysis.analyze(argvs)    

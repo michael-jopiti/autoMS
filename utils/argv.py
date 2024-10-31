@@ -1,5 +1,10 @@
-available_argvs = {"-o": "Output file is: ", 
-                   "-i": "Input file is: "}
+available_argvs = {"-o": "Output: ", 
+                   "-i": "Input: "}
+def help():
+    print("Inputs for autoMS:\n")
+    print(f"Mandatory:")
+    print("\t-i\tInput file or directory")
+    print("\t-o\tOutput file or directory")
 
 def argv_parser(argvs):
     ''' parse argvs, returns dictionary of available parsed argvs -> parsed = {flag: input} '''
