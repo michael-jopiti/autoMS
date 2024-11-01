@@ -2,10 +2,14 @@
 LC-MS tool for fast, automated mzML preprocessing in untargeted metabolomics analysis.
 
 
-## Run the code
+## Install and launch
 ```bash
-python3 main.py -i <input_files/input_diretory> -o <output_file_name/output_dir_name> -other_options
+git clone https://github.com/michael-jopiti/autoMS.git
+echo "alias autoMS='python3 $PWD/autoMS/main.py'" >> ~/.bashrc
+source ~/.bashrc
+autoMS -h
 ```
+
 
 ## Affiliation
 This project is affiliated with EMI[https://www.earthmetabolome.org/] and DBGI[https://www.dbgi.org/].
