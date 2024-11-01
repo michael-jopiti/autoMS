@@ -10,6 +10,11 @@ source ~/.bashrc
 autoMS -h
 ```
 
+## Simple launch with basic summary of (each) files(s)
+
+```bash
+autoMS -i path/to/file(s).mzML -o path/to/output -sum
+```
 
 ## Affiliation
 This project is affiliated with EMI[https://www.earthmetabolome.org/] and DBGI[https://www.dbgi.org/].
