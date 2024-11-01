@@ -26,5 +26,5 @@ def loading_bar(current, total):
     bar_length = 40  # Length of the loading bar
     filled_length = int(bar_length * current // total)
     bar = '█' * filled_length + '-' * (bar_length - filled_length)
-    sys.stdout.write(f'\r\t{current} of {total} |{bar}| {percent:.2f}%')
+    sys.stdout.write(f'\r\n{current} of {total} |{bar}| {percent:.2f}%')
     sys.stdout.flush()

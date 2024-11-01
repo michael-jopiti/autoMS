@@ -95,31 +95,61 @@ def plot_mz_intensity(run, output_file="plot_m/z_intensities_peaks.png"):
             print(f"Plotted file: {output_path}")
 
 
-# def plot_3d(run, output_file):
-#     ''' Plot 3D plots with X: m/z, Y: retention time, Z: intensity'''
 
-#     fig = plt.figure()
-#     ax = fig.add_subplot(111, projection='3d')
+def plot_3d(run, output_file):
+    ''' Plot 3D plots with X: m/z (MS2), Y: retention time, Z: intensity'''
 
-#     mz_values = [spectrum for spectrum in run if spectrum.ms_level == 1]
-#     tic_peaks = run["TIC"].peaks()
+    # Filter for MS2 spectra
+    spectra = [spectrum for spectrum in run if spectrum.ms_level == 2]
 
-#     retention_times = [peak[0] for peak in tic_peaks if len(peak) == 2]
-#     intensities = [peak[1] for peak in tic_peaks if len(peak) == 2]
+    # Prepare data lists
+    mz_values = []           # To store m/z values
+    retention_times = []     # To store retention times
+    intensities = []         # To store intensities
 
-#     print(f"Retention times: {len(retention_times)}, Intensities: {len(intensities)}, m/z values: {len(mz_values)}")
+    # Collect data from each spectrum
+    for spectrum in spectra:
+        for mz, intensity in spectrum.highest_peaks(len(spectrum.peaks('centroided'))):  # Assuming highest_peaks returns [(m/z, intensity), ...]
+            mz_values.append(mz)
+            retention_times.append(spectrum.scan_time_in_minutes())  # Assuming scan_time_in_minutes() returns time in minutes
+            intensities.append(intensity)
 
+    # Check for missing data
+    if not mz_values or not retention_times or not intensities:
+        print("No data available for plotting.")
+        return
 
-#     # Scatter plot for 3D points
-#     sc = ax.scatter(mz_values, retention_times, intensities, c=intensities, cmap='viridis')
-#     ax.set_xlabel("m/z")
-#     ax.set_ylabel("Retention Time [minutes]")
-#     ax.set_zlabel("Intensity")
-#     plt.title(f"All peaks raw from {run.info['file_name']}")  # Replace with actual file name
-#     plt.colorbar(sc, ax=ax, label='Intensity')  # Optional colorbar for intensity scale
+    # Create a 3D plot
+    fig = plt.figure(figsize=(10, 7))  # Set figure size
+    ax = fig.add_subplot(111, projection='3d')
 
-#     # Save the figure
-#     plt.savefig(output_file, format='png', dpi=300, bbox_inches='tight')
-#     plt.close()
+    # Plotting with plasma color map, inverting intensity for color
+    sc = ax.scatter(mz_values, retention_times, intensities, c=[-i for i in intensities], cmap='plasma', marker='o', s=60, alpha=0.7, edgecolor='none')
 
-#     return
+    # Add color bar
+    cbar = plt.colorbar(sc)
+    cbar.set_label('Intensity (inverted)', fontsize=12)
+    cbar.ax.tick_params(labelsize=10)
+
+    # Labeling the axes
+    ax.set_xlabel('m/z', fontsize=14)
+    ax.set_ylabel('RT (min)', fontsize=14)
+    ax.set_zlabel('Intensity', fontsize=14)
+
+    # Set viewing angle
+    ax.view_init(elev=30, azim=210)  # Adjust elevation and azimuth
+
+    # Add grid
+    ax.grid(True, linestyle='--', alpha=0.6)
+
+    # Improve axis limits if needed
+    ax.set_xlim([min(mz_values), max(mz_values)])
+    ax.set_ylim([min(retention_times), max(retention_times)])
+    ax.set_zlim([0, max(intensities) * 1.1])  # Slightly higher limit for aesthetics
+
+    # Save the plot to a file
+    plt.tight_layout()  # Adjust layout to fit labels
+    plt.savefig(output_file)
+    plt.close()  # Close the plot to free up memory
+
+    print(f"\n\n\t3D Plot saved as {output_file}")

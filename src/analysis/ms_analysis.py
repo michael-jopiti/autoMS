@@ -1,7 +1,11 @@
 import os, pymzml
 from datetime import datetime
+from .ms_plots import plot_3d, plot_mz_intensity, plot_mz_rt
 from ..utils.loading import loading_bar
 from ..utils.print import print_table
+
+# List to store summary info if multiple files are provided
+summary_specs = []
 
 def analyze(argvs):
     ''' Before true analysis, sanity check of input/output and respective dispatch depending if dir or file'''
@@ -28,7 +32,7 @@ def analyze_file(file_path, argvs, multiple=False):
 
         if argvs['-sum']:
             if multiple:
-               return summarize(run, multiple=True)
+               summary_specs.append(summarize(run, multiple=True))
             else: 
                 summarize(run)
 
@@ -36,16 +40,16 @@ def analyze_file(file_path, argvs, multiple=False):
         #     run = analysis_type.ms_trim(run, argvs['-ms'])
 
         if argvs['-rt']:
-            output_file = os.path.join(argvs['-o'], f"{os.path.basename(file_path).replace('.mzML', '_peaks.png')}")
-            ms_plots.plot_mz_rt(run, output_file)
+            output_file = os.path.join(argvs['-o'], f"{os.path.basename(file_path).replace('.mzML', '_RT_peaks.png')}")
+            plot_mz_rt(run, output_file)
 
         if argvs['-mz']:
-            output_file = os.path.join(argvs['-o'], f"{os.path.basename(file_path).replace('.mzML', '_peaks.png')}")
-            ms_plots.plot_mz_intensity(run, output_file)
+            output_file = os.path.join(argvs['-o'], f"{os.path.basename(file_path).replace('.mzML', '_mz_peaks.png')}")
+            plot_mz_intensity(run, output_file)
 
-        # if argvs['-3d']:
-        #     output_file = os.path.join(argvs['-o'], f"{os.path.basename(file_path).replace('.mzML', '_3d.png')}") 
-        #     ms_plots.plot_3d(run, output_file)
+        if argvs['-3d']:
+            output_file = os.path.join(argvs['-o'], f"{os.path.basename(file_path).replace('.mzML', '_3d.png')}") 
+            plot_3d(run, output_file)
 
         if argvs['-stat']:
             print("\t\tTODO: implement basic descriptive statistics")
@@ -73,7 +77,6 @@ def analyze_dir(dir_path, argvs):
     
     print(f"\nSummarizing {total_files} files:")
     
-    analyzed = []
     loading_bar(0, total_files)
 
     for i, file in enumerate(mzml_files):
@@ -81,12 +84,13 @@ def analyze_dir(dir_path, argvs):
         current_file = file  # Set the current file name
         
         # Analyze the file
-        analyzed.append(analyze_file(os.path.join(dir_path, file), argvs, multiple=True))
+        analyze_file(os.path.join(dir_path, file), argvs, multiple=True)
         
         # Update loading bar after analyzing each file
         loading_bar(i + 1, total_files)
 
-    print_table(analyzed[0].keys(), [list(result.values()) for result in analyzed])
+    if argvs['-sum']:
+        print_table(summary_specs[0].keys(), [list(result.values()) for result in summary_specs])
 
     return 0
 
