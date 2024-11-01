@@ -1,3 +1,4 @@
 tests/
-utils/__pycache__
+src/utils/__pycache__
 mock_files/
+src/analysis/__pycache__
